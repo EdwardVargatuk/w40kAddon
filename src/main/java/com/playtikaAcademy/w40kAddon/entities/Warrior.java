@@ -18,37 +18,62 @@ import java.util.List;
 @Builder
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor
-public class Warrior {
+@NoArgsConstructor(force = true)
+public class Warrior implements Cloneable {
 
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private Integer id;
+    private final Integer id;
     @Column(name = "warrior_name")
-    private String warriorName;
-    private Double balance;
-    private Long experience;
-    private Integer level;
-    private Double attack;
-    private Double defence;
-    private Integer agility;
+    private final String warriorName;
+    private final Double balance;
+    private final Long experience;
+    private final Integer level;
+    private final Double attack;
+    private final Double defence;
+    private final Integer agility;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @ManyToMany
+    @JoinTable
+    private final List<Skill> skills;
 
-    @ManyToMany(mappedBy = "warriors")
-    private List<Skill> skills;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "weapon_id")
-    private Weapon weapon;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "armor_id")
-    private Armor armor;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skin_id")
-    private Skin skin;
+    private final Weapon weapon;
 
+    @ManyToOne
+    @JoinColumn(name = "armor_id")
+    private final Armor armor;
+
+    @ManyToOne
+    @JoinColumn(name = "skin_id")
+    private final Skin skin;
+
+
+    /**
+     * @param experience of Warrior
+     * @param level      of Warrior
+     * @return level according to picked experience
+     */
+    public int getUpdatedLevel(long experience, int level) {
+        if (experience >= needExperienceForLvlUp(level)) {
+            int newLvl = level + 1;
+            long experienceLeft = experience - needExperienceForLvlUp(level);
+            if (experienceLeft >= needExperienceForLvlUp(newLvl)) {
+                return getUpdatedLevel(experienceLeft, newLvl);
+            } else return newLvl;
+
+        } else return level;
+    }
+
+    /**
+     * calc by pow of warrior lvl
+     *
+     * @param level of warrior
+     * @return how much experience need to level Up
+     */
+    private long needExperienceForLvlUp(int level) {
+        return (long) Math.pow(level, 2) * 1000;
+    }
 }

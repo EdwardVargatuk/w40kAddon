@@ -1,6 +1,9 @@
 package com.playtikaAcademy.w40kAddon.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
@@ -11,19 +14,24 @@ import java.util.List;
  * @author Edward
  */
 @Data
+@Builder
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor(force = true)
 public class User {
+
     @Id
     @GeneratedValue
-    @Column(name = "id")
-    private Integer id;
-    @Column(name = "user_name")
-    private String userName;
-    private String password;
-    private String email;
-    private Double balance;
+    private final Integer id;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
-    private List<Warrior> warriors;
+    @Column(name = "user_name")
+    private final String userName;
+    private final String password;
+    private final String email;
+    private final Double balance;
+
+    @OneToMany
+    @JoinColumn(name="user_id")
+    private final List<Warrior> warriors;
 
 }

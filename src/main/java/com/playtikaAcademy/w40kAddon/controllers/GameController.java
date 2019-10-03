@@ -1,5 +1,6 @@
 package com.playtikaAcademy.w40kAddon.controllers;
 
+import com.playtikaAcademy.w40kAddon.entities.User;
 import com.playtikaAcademy.w40kAddon.entities.Warrior;
 import com.playtikaAcademy.w40kAddon.service.MainGameService;
 import org.apache.logging.log4j.LogManager;
@@ -35,13 +36,19 @@ public class GameController {
                 .balance(0.0)
                 .agility(0)
                 .attack(10.5)
-                .defence(5.0).build();
+                .defence(5.0)
+                .build();
         logger.debug("New warrior created " + warrior);
         return mainGameService.getWarriorRepository().save(warrior);
     }
 
     @PostMapping("battle/")
-    public Warrior makeInvisibleBattle() {
-        return mainGameService.getCharacterAfterBattle("Destroyer");
+    public Warrior makeInvisibleBattle(@RequestParam("name") String warriorName) {
+        return mainGameService.getCharacterAfterBattle(warriorName);
+    }
+
+    @GetMapping("user/{id}")
+    public User getUser(@PathVariable("id") int id) {
+        return mainGameService.getUser(id).isPresent() ? mainGameService.getUser(id).get() : User.builder().build();
     }
 }
