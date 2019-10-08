@@ -14,4 +14,5 @@ public interface WarriorRepository extends JpaRepository<Warrior, Integer> {
 
     Optional<Warrior> findByWarriorName(String name);
 
+
 }
