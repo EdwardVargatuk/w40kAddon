@@ -1,9 +1,6 @@
 package com.playtikaAcademy.w40kAddon.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -25,7 +22,7 @@ public class Warrior implements Cloneable {
     @GeneratedValue
     @Column(name = "id")
     private final Integer id;
-    @Column(name = "warrior_name")
+    @Column(name = "warrior_name", unique = true)
     private final String warriorName;
     private final Double balance;
     private final Long experience;
@@ -50,30 +47,18 @@ public class Warrior implements Cloneable {
     @JoinColumn(name = "skin_id")
     private final Skin skin;
 
+    /**
+     * warriorSpeciality make influence for the obtaining skills
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "warrior_speciality", length = 16)
+    private WarriorSpeciality warriorSpeciality;
+
 
     /**
-     * @param experience of Warrior
-     * @param level      of Warrior
-     * @return level according to picked experience
+     * Enum for warrior's specialities
      */
-    public int getUpdatedLevel(long experience, int level) {
-        if (experience >= needExperienceForLvlUp(level)) {
-            int newLvl = level + 1;
-            long experienceLeft = experience - needExperienceForLvlUp(level);
-            if (experienceLeft >= needExperienceForLvlUp(newLvl)) {
-                return getUpdatedLevel(experienceLeft, newLvl);
-            } else return newLvl;
-
-        } else return level;
-    }
-
-    /**
-     * calc by pow of warrior lvl
-     *
-     * @param level of warrior
-     * @return how much experience need to level Up
-     */
-    private long needExperienceForLvlUp(int level) {
-        return (long) Math.pow(level, 2) * 1000;
+    public enum WarriorSpeciality {
+        APOTHECARY, ASSAULT, LIBRARIAN, HEAVY_WEAPON, TACTICAL
     }
 }

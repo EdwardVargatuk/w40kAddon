@@ -5,7 +5,11 @@ import com.playtikaAcademy.w40kAddon.entities.Warrior;
 import com.playtikaAcademy.w40kAddon.service.MainGameService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,9 +37,9 @@ public class GameController {
                 .warriorName(warriorName)
                 .level(1)
                 .experience(0L)
-                .balance(0.0)
+                .balance(2.0)
                 .agility(0)
-                .attack(10.5)
+                .attack(10.0)
                 .defence(5.0)
                 .build();
         logger.debug("New warrior created " + warrior);
@@ -50,5 +54,12 @@ public class GameController {
     @GetMapping("user/{id}")
     public User getUser(@PathVariable("id") int id) {
         return mainGameService.getUser(id).isPresent() ? mainGameService.getUser(id).get() : User.builder().build();
+    }
+
+    @GetMapping("user/store/buySkin/{userName}/{warriorName}/{skinName}/")
+    public ResponseEntity<User> buySkin(@PathVariable("userName") String userName, @PathVariable("warriorName") String warriorName,
+                                  @PathVariable("skinName") String skinName) {
+        return ResponseEntity.status(HttpStatus.OK).body(mainGameService.buySkin(skinName, warriorName,userName));
+//        return (mainGameService.buySkin(skinName, warriorName,userName));
     }
 }
