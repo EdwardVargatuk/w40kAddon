@@ -1,31 +1,33 @@
 package com.playtikaAcademy.w40kAddon.entities;
 
 import lombok.*;
+import lombok.experimental.Wither;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 /**
  * 28.09.2019 23:40
  *
  * @author Edward
  */
-
 @Data
 @Builder
+@Wither
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class Warrior implements Cloneable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private final Integer id;
     @Column(name = "warrior_name", unique = true)
     private final String warriorName;
     private final Double balance;
     private final Long experience;
+
     private final Integer level;
     private final Double attack;
     private final Double defence;
@@ -33,7 +35,7 @@ public class Warrior implements Cloneable {
 
     @ManyToMany
     @JoinTable
-    private final List<Skill> skills;
+    private final Set<Skill> skills;
 
     @ManyToOne
     @JoinColumn(name = "weapon_id")
@@ -52,13 +54,6 @@ public class Warrior implements Cloneable {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "warrior_speciality", length = 16)
-    private WarriorSpeciality warriorSpeciality;
+    private final WarriorSpeciality warriorSpeciality;
 
-
-    /**
-     * Enum for warrior's specialities
-     */
-    public enum WarriorSpeciality {
-        APOTHECARY, ASSAULT, LIBRARIAN, HEAVY_WEAPON, TACTICAL
-    }
 }

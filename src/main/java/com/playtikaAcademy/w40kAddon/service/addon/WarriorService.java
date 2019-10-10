@@ -1,7 +1,10 @@
 package com.playtikaAcademy.w40kAddon.service.addon;
 
-import com.playtikaAcademy.w40kAddon.entities.Armor;
-import com.playtikaAcademy.w40kAddon.entities.Weapon;
+import com.playtikaAcademy.w40kAddon.entities.Skill;
+import com.playtikaAcademy.w40kAddon.entities.Warrior;
+import com.playtikaAcademy.w40kAddon.entities.WarriorSpeciality;
+
+import java.util.Set;
 
 /**
  * 07.10.2019 21:56
@@ -12,7 +15,13 @@ public interface WarriorService {
 
     int getUpdatedLevel(long experience, int level);
 
-    double getUpdatedAttack(Weapon weapon);
+    double getUpdatedAttack(Warrior warrior);
 
-    double getUpdatedDefence(Armor armor);
+    double getUpdatedDefence(Warrior warrior);
+
+    Set<Skill> getActualSkills(Warrior warrior);
+
+    double getDefaultDefence(WarriorSpeciality warriorSpeciality);
+
+    double getDefaultAttack(WarriorSpeciality warriorSpeciality);
 }
