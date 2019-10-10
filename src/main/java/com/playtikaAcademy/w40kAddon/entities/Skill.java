@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Wither;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * 28.09.2019 23:41
@@ -16,6 +16,7 @@ import java.util.List;
 
 @Data
 @Builder
+@Wither
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
@@ -25,8 +26,10 @@ public class Skill {
     @GeneratedValue
     private final Integer id;
     private final String name;
-    private final Integer level;
-    //TODO: chose realization
-//    private List<String> abilities;
-//    private String description;
+    private final Integer rate;
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "warrior_speciality", length = 16)
+    private final WarriorSpeciality warriorSpeciality;
 }

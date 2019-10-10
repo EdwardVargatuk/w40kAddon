@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Wither;
 
 import javax.persistence.*;
 import java.util.List;
@@ -15,13 +16,14 @@ import java.util.List;
  */
 @Data
 @Builder
+@Wither
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class User {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private final Integer id;
 
     @Column(name = "user_name")
@@ -30,7 +32,7 @@ public class User {
     private final String email;
     private final Double balance;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name="user_id")
     private final List<Warrior> warriors;
 

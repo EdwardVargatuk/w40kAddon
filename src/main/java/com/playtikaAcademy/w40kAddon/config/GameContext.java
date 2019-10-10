@@ -2,6 +2,8 @@ package com.playtikaAcademy.w40kAddon.config;
 
 import com.playtikaAcademy.w40kAddon.addon.games.Quest;
 import com.playtikaAcademy.w40kAddon.service.MainGameService;
+import com.playtikaAcademy.w40kAddon.addon.utils.PseudoGooglePay;
+
 import com.playtikaAcademy.w40kAddon.service.addon.PseudoGooglePayService;
 import com.playtikaAcademy.w40kAddon.service.addon.WarriorActualizer;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,11 @@ public class GameContext {
     @Bean
     public MainGameService getMainGameService() {
         return new MainGameService();
+    }
+
+    @Bean
+    public PseudoGooglePay getPseudoGooglePay() {
+        return new PseudoGooglePay();
     }
 
     @Bean
