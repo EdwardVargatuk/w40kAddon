@@ -118,7 +118,7 @@ public class PseudoGooglePay {
         Optional<JSONObject> paymentDataRequestJson = getPaymentDataRequest(price);
 
         if (!paymentDataRequestJson.isPresent()) {
-            return new JSONObject().put("error", "paymentDataRequestJson is empty");
+            return new JSONObject().put("ERROR", "paymentDataRequestJson is empty");
         }
         JSONObject jsonObject = paymentDataRequestJson.get();
         jsonObject.put("resultStatus", "OK");

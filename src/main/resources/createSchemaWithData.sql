@@ -112,8 +112,6 @@ CREATE TABLE IF NOT EXISTS `warhammer_addon_db`.`warrior`
   `level`              INT                   NOT NULL,
   `experience`         LONG                  NOT NULL,
   `user_id`            INT,
-  `armor_id`           INT,
-  `weapon_id`          INT,
   `skin_id`            INT,
   `warrior_speciality` ENUM ('APOTHECARY', 'ASSAULT',
     'LIBRARIAN', 'HEAVY_WEAPON', 'TACTICAL') NOT NULL,
@@ -123,10 +121,6 @@ CREATE TABLE IF NOT EXISTS `warhammer_addon_db`.`warrior`
 
   FOREIGN KEY (user_id)
     REFERENCES warhammer_addon_db.user (id),
-  FOREIGN KEY (armor_id)
-    REFERENCES warhammer_addon_db.armor (id),
-  FOREIGN KEY (weapon_id)
-    REFERENCES warhammer_addon_db.weapon (id),
   FOREIGN KEY (skin_id)
     REFERENCES warhammer_addon_db.skin (id)
 
@@ -215,7 +209,13 @@ COMMIT;
 START TRANSACTION;
 USE `warhammer_addon_db`;
 INSERT INTO `warhammer_addon_db`.`armor` (`id`, `name`, `power`)
-VALUES (1, 'Imperial Crusaders', 15.0);
+VALUES (1, 'Imperial Crusaders', 37.0);
+INSERT INTO `warhammer_addon_db`.`armor` (`id`, `name`, `power`)
+VALUES (2, 'Mark I Thunder', 27.5);
+INSERT INTO `warhammer_addon_db`.`armor` (`id`, `name`, `power`)
+VALUES (3, 'Aegis', 18.4);
+INSERT INTO `warhammer_addon_db`.`armor` (`id`, `name`, `power`)
+VALUES (4, 'Chaos ', 88.0);
 
 COMMIT;
 
@@ -223,12 +223,25 @@ START TRANSACTION;
 USE `warhammer_addon_db`;
 INSERT INTO `warhammer_addon_db`.`weapon` (`id`, `name`, `power`)
 VALUES (1, 'Grinder', 25.0);
+INSERT INTO `warhammer_addon_db`.`weapon` (`id`, `name`, `power`)
+VALUES (2, 'Power Sword', 13.9);
+INSERT INTO `warhammer_addon_db`.`weapon` (`id`, `name`, `power`)
+VALUES (3, 'A Heavy Flamer', 150.0);
+INSERT INTO `warhammer_addon_db`.`weapon` (`id`, `name`, `power`)
+VALUES (4, 'Shock Maul', 33.1);
+
 
 COMMIT;
 
 START TRANSACTION;
 USE `warhammer_addon_db`;
 INSERT INTO `warhammer_addon_db`.`skin` (`id`, `name`, `price`, `url`)
-VALUES (1, 'terminator', 2, 'https://files.gamebanana.com/img/ss/srends/39757.jpg');
+VALUES (1, 'Terminator', 2, 'https://files.gamebanana.com/img/ss/srends/39757.jpg');
+INSERT INTO `warhammer_addon_db`.`skin` (`id`, `name`, `price`, `url`)
+VALUES (2, 'Adrastia', 1, 'https://vignette.wikia.nocookie.net/warhammer40k/images/4/45/Andrastia_4.jpg/revision/latest/scale-to-width-down/1000?cb=20150722191111');
+INSERT INTO `warhammer_addon_db`.`skin` (`id`, `name`, `price`, `url`)
+VALUES (3, 'A Raven Guard', 1, 'https://vignette.wikia.nocookie.net/warhammer40k/images/c/c2/RG_assault_marine_by_diegogisbertllorens.jpg/revision/latest?cb=20130604203505');
+INSERT INTO `warhammer_addon_db`.`skin` (`id`, `name`, `price`, `url`)
+VALUES (4, 'Drazhar', 2, 'https://vignette.wikia.nocookie.net/warhammer40k/images/d/db/DrazharMini.jpg/revision/latest?cb=20191007174820');
 
 COMMIT;

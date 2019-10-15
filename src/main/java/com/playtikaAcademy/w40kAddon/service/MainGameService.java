@@ -1,17 +1,18 @@
 package com.playtikaAcademy.w40kAddon.service;
 
-import com.playtikaAcademy.w40kAddon.entities.User;
-import com.playtikaAcademy.w40kAddon.entities.Warrior;
-import com.playtikaAcademy.w40kAddon.entities.WarriorSpeciality;
+import com.playtikaAcademy.w40kAddon.entities.*;
+import com.playtikaAcademy.w40kAddon.exceptions.EntityNotFoundByParameterException;
+import com.playtikaAcademy.w40kAddon.exceptions.NonUniqueWarriorNameException;
+import com.playtikaAcademy.w40kAddon.exceptions.WarriorAlreadyHaveEquipmentException;
 import com.playtikaAcademy.w40kAddon.repository.SkillRepository;
 import com.playtikaAcademy.w40kAddon.repository.SkinRepository;
 import com.playtikaAcademy.w40kAddon.repository.UserRepository;
 import com.playtikaAcademy.w40kAddon.repository.WarriorRepository;
-import com.playtikaAcademy.w40kAddon.addon.utils.PseudoGooglePay;
+import com.playtikaAcademy.w40kAddon.service.addon.IntroductionDescriptor;
 import com.playtikaAcademy.w40kAddon.service.addon.WarriorService;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 
 @Data
+@Slf4j
 public class MainGameService {
 
     private final Random random = new Random();
@@ -45,42 +47,109 @@ public class MainGameService {
     SkinRepository skinRepository;
 
     @Autowired
-    PseudoGooglePay pseudoGooglePay;
+    IntroductionDescriptor introductionDescriptor;
 
     @Autowired
     WarriorService warriorService;
 
-    @Autowired
-    Environment env;
 
-    public Warrior getCharacterAfterBattle(String name) {
-        Optional<Warrior> warriorOptional = warriorRepository.findByWarriorName(name);
-        Warrior newWarrior = Warrior.builder().build();
+    /**
+     * @param warriorName for get warrior if exist
+     * @return warrior of throw EntityNotFoundByParameterException
+     */
+    private Warrior getWarriorByName(String warriorName) {
+        Optional<Warrior> warriorOptional = warriorRepository.findByWarriorName(warriorName);
         if (warriorOptional.isPresent()) {
-            Warrior warrior = warriorOptional.get();
-            long randomExperience = ThreadLocalRandom.current().nextLong(LOWER_BOUND, UPPER_BOUND);
-            int currentLevel = warriorService.getUpdatedLevel(warrior.getExperience() + randomExperience, warrior.getLevel());
-            newWarrior = warrior.withLevel(currentLevel)
-                    .withExperience(warrior.getExperience() + randomExperience)
-                    .withSkills(warriorService.getActualSkills(warrior.withLevel(currentLevel)));
-            return warriorRepository.save(newWarrior);
+            return warriorOptional.get();
+        } else throw new EntityNotFoundByParameterException(Warrior.class, "name: " + warriorName);
+    }
+
+    /**
+     * update warrior in database
+     * simulate game process, when after each battle player can obtain experience
+     *
+     * @param name for get warrior
+     * @return updated warrior
+     */
+    public Warrior getCharacterAfterBattle(String name) {
+        Warrior warrior = getWarriorByName(name);
+        long randomExperience = ThreadLocalRandom.current().nextLong(LOWER_BOUND, UPPER_BOUND);
+        int currentLevel = warriorService.getUpdatedLevel(warrior.getExperience() + randomExperience, warrior.getLevel());
+        Warrior newWarrior = warrior.withLevel(currentLevel)
+                .withExperience(warrior.getExperience() + randomExperience)
+                .withSkills(warriorService.getActualSkills(warrior.withLevel(currentLevel)));
+        return warriorRepository.save(newWarrior);
+    }
+
+
+    /**
+     * @param id for find user
+     * @return user of throw EntityNotFoundByParameterException
+     */
+    public User getUser(int id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            return userOptional.get();
+        } else throw new EntityNotFoundByParameterException(User.class, "id: " + id);
+    }
+
+
+    /**
+     * @param warriorName to update
+     * @param weaponName  to change
+     * @return updated warrior
+     */
+    public Warrior getWarriorAfterChangeWeapon(String warriorName, String weaponName) {
+        Warrior warrior = getWarriorByName(warriorName);
+        return warriorRepository.save(warrior.withAttack(warriorService.getUpdatedAttack(warrior, weaponName)));
+    }
+
+
+    /**
+     * @param warriorName target to add weapon
+     * @param weapon      to add to warrior if he not contains it
+     * @return updated warrior
+     */
+    public Warrior addWeaponToWarrior(String warriorName, Weapon weapon) {
+        Warrior warrior = getWarriorByName(warriorName);
+        List<Weapon> weaponList = warrior.getWeapons();
+        if (weaponList.indexOf(weapon) > -1) {
+            throw new WarriorAlreadyHaveEquipmentException(weapon.getName());
+        } else {
+            List<Weapon> weapons = warrior.getWeapons();
+            weapons.add(weapon);
+            Warrior updatedWarrior = warrior.withWeapons(weapons).withAttack(warriorService.getUpdatedAttack(warrior, weapon.getName()));
+            return warriorRepository.save(updatedWarrior);
         }
-        return newWarrior;
     }
 
-
-    public Optional<User> getUser(int id) {
-        return userRepository.findById(id);
+    /**
+     * @param warriorName to update
+     * @param armorName   to change
+     * @return updated warrior
+     */
+    public Warrior getWarriorAfterChangeArmor(String warriorName, String armorName) {
+        Warrior warrior = getWarriorByName(warriorName);
+        return warriorRepository.save(warrior.withDefence(warriorService.getUpdatedDefence(warrior, armorName)));
     }
 
-//    public Warrior getWarriorAfterChangeWeapon(Warrior warrior) {
-//        Warrior warrior1 = warrior.withAttack(warriorService.getUpdatedAttack(warrior));
-//
-//    }
-//
-//    public Warrior getWarriorAfterChangeArmor(Warrior warrior) {
-//
-//    }
+    /**
+     * @param warriorName target to add armor
+     * @param armor       to add to warrior if he not contains it
+     * @return updated warrior
+     */
+    public Warrior addArmorToWarrior(String warriorName, Armor armor) {
+        Warrior warrior = getWarriorByName(warriorName);
+        List<Armor> armors = warrior.getArmors();
+        if (armors.indexOf(armor) > -1) {
+            throw new WarriorAlreadyHaveEquipmentException(armor.getName());
+        } else {
+            List<Armor> warriorArmors = warrior.getArmors();
+            warriorArmors.add(armor);
+            Warrior updatedWarrior = warrior.withArmors(warriorArmors).withDefence(warriorService.getUpdatedDefence(warrior, armor.getName()));
+            return warriorRepository.save(updatedWarrior);
+        }
+    }
 
     /**
      * to avoid getting from db every time
@@ -102,55 +171,55 @@ public class MainGameService {
         return Optional.empty();
     }
 
-    private Optional<WarriorSpeciality> getWarriorSpecialityAccordingItsNumber(int warriorSpeciality) {
-        switch (warriorSpeciality) {
-            case 1:
-                return Optional.of(WarriorSpeciality.APOTHECARY);
-            case 2:
-                return Optional.of(WarriorSpeciality.ASSAULT);
-            case 3:
-                return Optional.of(WarriorSpeciality.LIBRARIAN);
-            case 4:
-                return Optional.of(WarriorSpeciality.HEAVY_WEAPON);
-            case 5:
-                return Optional.of(WarriorSpeciality.TACTICAL);
-        }
-        return Optional.empty();
-    }
-
-    public Warrior createNewWarrior(String warriorName, int warriorSpeciality) {
-        Optional<WarriorSpeciality> specialityOptional = getWarriorSpecialityAccordingItsNumber(warriorSpeciality);
-        //dummy to get default user that already login in system
-        Optional<User> optionalUser = userRepository.findById(1);
-        Warrior warrior;
+    /**
+     * @param warriorName       unique, nick in game
+     * @param warriorSpeciality on which depends warrior stats
+     * @return persisted warrior
+     */
+    public Warrior createNewWarrior(int userId, String warriorName, WarriorSpeciality warriorSpeciality) {
+        checkUniqueWarriorName(warriorName);
+        Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {
             User currentUser = optionalUser.get();
-            warrior = Warrior.builder()
+            Warrior warrior = Warrior.builder()
                     .warriorName(warriorName)
                     .level(1)
                     .experience(0L)
                     .balance(10.0)
                     .agility(0)
-                    .attack(warriorService.getDefaultAttack(specialityOptional.orElse(WarriorSpeciality.ASSAULT)))
-                    .defence(warriorService.getDefaultDefence(specialityOptional.orElse(WarriorSpeciality.ASSAULT)))
-                    .warriorSpeciality(specialityOptional.orElse(WarriorSpeciality.ASSAULT))
+                    .attack(warriorService.getDefaultAttack(warriorSpeciality))
+                    .defence(warriorService.getDefaultDefence(warriorSpeciality))
+                    .warriorSpeciality(warriorSpeciality)
                     .build();
-            currentUser.getWarriors().add(warrior);
-            userRepository.save(currentUser);
-        } else warrior = Warrior.builder().build();
-
-        return warrior;
-
+            List<Warrior> warriors = currentUser.getWarriors();
+            warriors.add(warrior);
+            User updatedUser = userRepository.save(currentUser.withWarriors(warriors));
+            return updatedUser.getWarriors().get(updatedUser.getWarriors().size() - 1);
+        } else throw new EntityNotFoundByParameterException(User.class, "id: " + userId);
     }
 
+    /**
+     * @param warriorName in w40k game must be unique for all game world
+     */
+    private void checkUniqueWarriorName(String warriorName) {
+        List<Warrior> allWarriorsList = warriorRepository.findAllByWarriorName(warriorName);
+        if (allWarriorsList.size() > 0) {
+            throw new NonUniqueWarriorNameException("warrior with name " + warriorName + " already exist!");
+        }
+    }
+
+    /**
+     * @param chapterNumber by default max chapter number is 3
+     * @return chapter description
+     */
     public String getIntroductionDescription(int chapterNumber) {
         switch (chapterNumber) {
             case 1:
-                return env.getProperty("introduction.chapter.first");
+                return introductionDescriptor.getFirstChapter();
             case 2:
-                return env.getProperty("introduction.chapter.second");
+                return introductionDescriptor.getSecondChapter();
             case 3:
-                return env.getProperty("introduction.chapter.third");
+                return introductionDescriptor.getThirdChapter();
             default:
                 return "There is no such chapter";
         }

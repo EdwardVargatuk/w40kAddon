@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.Wither;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,13 +38,13 @@ public class Warrior implements Cloneable {
     @JoinTable
     private final Set<Skill> skills;
 
-    @ManyToOne
-    @JoinColumn(name = "weapon_id")
-    private final Weapon weapon;
+    @ManyToMany
+    @JoinTable
+    private final List<Weapon> weapons;
 
-    @ManyToOne
-    @JoinColumn(name = "armor_id")
-    private final Armor armor;
+    @ManyToMany
+    @JoinTable
+    private final List<Armor> armors;
 
     @ManyToOne
     @JoinColumn(name = "skin_id")

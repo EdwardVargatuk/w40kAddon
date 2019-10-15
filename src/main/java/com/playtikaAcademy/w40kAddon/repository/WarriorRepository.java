@@ -3,6 +3,7 @@ package com.playtikaAcademy.w40kAddon.repository;
 import com.playtikaAcademy.w40kAddon.entities.Warrior;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,5 +15,5 @@ public interface WarriorRepository extends JpaRepository<Warrior, Integer> {
 
     Optional<Warrior> findByWarriorName(String name);
 
-
+    List<Warrior> findAllByWarriorName(String name);
 }
