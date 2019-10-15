@@ -1,11 +1,8 @@
 package com.playtikaAcademy.w40kAddon.controllers;
 
-import com.playtikaAcademy.w40kAddon.entities.User;
-import com.playtikaAcademy.w40kAddon.entities.Warrior;
+import com.playtikaAcademy.w40kAddon.entities.*;
 import com.playtikaAcademy.w40kAddon.service.MainGameService;
 import com.playtikaAcademy.w40kAddon.service.addon.PseudoGooglePayService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class GameController {
 
 
-    private static final Logger logger = LogManager.getLogger(GameController.class.getName());
-
     private final MainGameService mainGameService;
 
     private final PseudoGooglePayService pseudoGooglePayService;
@@ -34,31 +29,60 @@ public class GameController {
         this.pseudoGooglePayService = pseudoGooglePayService;
     }
 
-    @PutMapping("warrior/new/{warrior-name}/{speciality}/")
-    public Warrior createNewWarrior(@PathVariable("warrior-name") String warriorName,
-                                    @PathVariable("speciality") int warriorSpeciality) {
-        return mainGameService.createNewWarrior(warriorName, warriorSpeciality);
+    @PutMapping("warrior/new/")
+    public Warrior createNewWarrior(@RequestParam("user-id") int userId,
+                                    @RequestParam("warrior-name") String warriorName,
+                                    @RequestBody WarriorSpeciality warriorSpeciality) {
+        return mainGameService.createNewWarrior(userId, warriorName, warriorSpeciality);
     }
 
-    @PostMapping("battle/")
+    @PostMapping("warrior/battle/")
     public Warrior makeInvisibleBattle(@RequestParam("name") String warriorName) {
         return mainGameService.getCharacterAfterBattle(warriorName);
     }
 
-    @GetMapping("user/{id}")
-    public User getUser(@PathVariable("id") int id) {
-        return mainGameService.getUser(id).isPresent() ? mainGameService.getUser(id).get() : User.builder().build();
+    @PostMapping("warrior/weapon/change/")
+    public Warrior changeWeapon(@RequestParam("warriorName") String warriorName,
+                                @RequestParam("weaponName") String weaponName) {
+        return mainGameService.getWarriorAfterChangeWeapon(warriorName, weaponName);
     }
 
-    @PostMapping("store/buySkin/{userName}/{warriorName}/{skinName}/")
-    public ResponseEntity<User> buySkin(@PathVariable("userName") String userName, @PathVariable("warriorName") String warriorName,
-                                        @PathVariable("skinName") String skinName) {
+    @PostMapping("warrior/armor/change/")
+    public Warrior changeArmor(@RequestParam("name") String warriorName,
+                               @RequestParam("armorName") String armorName) {
+        return mainGameService.getWarriorAfterChangeArmor(warriorName, armorName);
+    }
+
+    @PutMapping("warrior/weapon/add/")
+    public Warrior addWeapon(@RequestParam("warriorName") String warriorName,
+                             @RequestBody Weapon weapon) {
+        return mainGameService.addWeaponToWarrior(warriorName, weapon);
+    }
+
+    @PutMapping("warrior/armor/add/")
+    public Warrior addWeapon(@RequestParam("warriorName") String warriorName,
+                             @RequestBody Armor armor) {
+        return mainGameService.addArmorToWarrior(warriorName, armor);
+    }
+
+    @GetMapping("user/{id}")
+    public User getUser(@PathVariable("id") int id) {
+        return mainGameService.getUser(id);
+    }
+
+    @PostMapping("store/buySkin/")
+    public ResponseEntity<User> buySkin(@RequestParam("userName") String userName, @RequestParam("warriorName") String warriorName,
+                                        @RequestParam("skinName") String skinName) {
         return ResponseEntity.status(HttpStatus.OK).body(pseudoGooglePayService.buySkin(skinName, warriorName, userName));
-//        return (mainGameService.buySkin(skinName, warriorName,userName));
     }
 
     @GetMapping("intro/chapter/{chapterNumber}/")
     public String getIntroduction(@PathVariable("chapterNumber") int chapterNumber) {
         return mainGameService.getIntroductionDescription(chapterNumber);
     }
+
+//    @PostMapping("addon/firstBonusGame/")
+//    public ResponseEntity<User> firstBonusGame(@RequestParam("userName") String userName, @RequestParam("warriorName") String warriorName) {
+//        return gameService.startNewGame();
+//    }
 }

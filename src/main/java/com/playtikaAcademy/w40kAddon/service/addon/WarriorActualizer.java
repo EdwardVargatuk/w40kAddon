@@ -1,12 +1,11 @@
 package com.playtikaAcademy.w40kAddon.service.addon;
 
-import com.playtikaAcademy.w40kAddon.entities.Skill;
-import com.playtikaAcademy.w40kAddon.entities.Warrior;
-import com.playtikaAcademy.w40kAddon.entities.WarriorSpeciality;
+import com.playtikaAcademy.w40kAddon.entities.*;
 import com.playtikaAcademy.w40kAddon.repository.SkillRepository;
 import com.playtikaAcademy.w40kAddon.repository.WarriorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -45,22 +44,54 @@ public class WarriorActualizer implements WarriorService {
         } else return level;
     }
 
+    /**
+     * @param warrior    target needed to update param
+     * @param weaponName for calculate attack
+     * @return updated warrior attack/default attack for empty weapon list
+     */
     @Override
-    public double getUpdatedAttack(Warrior warrior) {
-        if (warrior.getWeapon() != null) {
-            return getDefaultAttack(warrior.getWarriorSpeciality()) * warrior.getWeapon().getPower() / 100;
+    public double getUpdatedAttack(Warrior warrior, String weaponName) {
+        List<Weapon> weapons = warrior.getWeapons();
+        if (weapons.size() > 0) {
+            int index = 0;
+            for (Weapon weapon : weapons) {
+                if (weapon.getName().equals(weaponName)) {
+                    index = weapons.indexOf(weapon);
+                    break;
+                }
+            }
+            double defaultAttack = getDefaultAttack(warrior.getWarriorSpeciality());
+            return defaultAttack + (defaultAttack * (weapons.get(index).getPower() / 100));
         } else
             return warrior.getAttack();
     }
 
+    /**
+     * @param warrior   target needed to update param
+     * @param armorName for calculate defence
+     * @return updated warrior defence/default defence for empty armor list
+     */
     @Override
-    public double getUpdatedDefence(Warrior warrior) {
-        if (warrior.getArmor() != null) {
-            return getDefaultDefence(warrior.getWarriorSpeciality()) * warrior.getArmor().getPower() / 100;
+    public double getUpdatedDefence(Warrior warrior, String armorName) {
+        List<Armor> armors = warrior.getArmors();
+        if (armors.size() > 0) {
+            int index = 0;
+            for (Armor armor : armors) {
+                if (armor.getName().equals(armorName)) {
+                    index = armors.indexOf(armor);
+                    break;
+                }
+            }
+            double defaultDefence = getDefaultDefence(warrior.getWarriorSpeciality());
+            return defaultDefence + (defaultDefence * (warrior.getArmors().get(index).getPower() / 100));
         } else
             return warrior.getDefence();
     }
 
+    /**
+     * @param warrior target needed to update param
+     * @return actual skills according warrior level
+     */
     @Override
     public Set<Skill> getActualSkills(Warrior warrior) {
         Optional<Skill> optionalSkill = getSkillAccordingWarriorLevelAndSpeciality(warrior);
@@ -69,6 +100,10 @@ public class WarriorActualizer implements WarriorService {
     }
 
 
+    /**
+     * @param warrior target for search
+     * @return Optional of skill
+     */
     private Optional<Skill> getSkillAccordingWarriorLevelAndSpeciality(Warrior warrior) {
         switch (warrior.getLevel()) {
             case 3:
@@ -93,6 +128,9 @@ public class WarriorActualizer implements WarriorService {
         return (long) Math.pow(level, 2) * 1000;
     }
 
+    /**
+     * @return default attack according warriorSpeciality
+     */
     @Override
     public double getDefaultAttack(WarriorSpeciality warriorSpeciality) {
         switch (warriorSpeciality) {
@@ -111,6 +149,9 @@ public class WarriorActualizer implements WarriorService {
         }
     }
 
+    /**
+     * @return default defence according warriorSpeciality
+     */
     @Override
     public double getDefaultDefence(WarriorSpeciality warriorSpeciality) {
         switch (warriorSpeciality) {

@@ -15,9 +15,9 @@ public interface WarriorService {
 
     int getUpdatedLevel(long experience, int level);
 
-    double getUpdatedAttack(Warrior warrior);
+    double getUpdatedAttack(Warrior warrior, String weaponName);
 
-    double getUpdatedDefence(Warrior warrior);
+    double getUpdatedDefence(Warrior warrior, String armorName);
 
     Set<Skill> getActualSkills(Warrior warrior);
 
