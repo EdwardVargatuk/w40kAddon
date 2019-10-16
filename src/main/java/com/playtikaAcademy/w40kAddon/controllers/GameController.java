@@ -1,5 +1,6 @@
 package com.playtikaAcademy.w40kAddon.controllers;
 
+import com.playtikaAcademy.w40kAddon.addon.games.Quest;
 import com.playtikaAcademy.w40kAddon.entities.*;
 import com.playtikaAcademy.w40kAddon.service.MainGameService;
 import com.playtikaAcademy.w40kAddon.service.addon.PseudoGooglePayService;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 
 /**
@@ -81,6 +83,12 @@ public class GameController {
         return mainGameService.getIntroductionDescription(chapterNumber);
     }
 
+    @GetMapping("console/")
+    public String readFromConsole(){
+        Quest quest = new Quest();
+        quest.readFromConsole();
+        return "ok";
+    }
 //    @PostMapping("addon/firstBonusGame/")
 //    public ResponseEntity<User> firstBonusGame(@RequestParam("userName") String userName, @RequestParam("warriorName") String warriorName) {
 //        return gameService.startNewGame();
