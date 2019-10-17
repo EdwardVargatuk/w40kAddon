@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
@@ -32,7 +31,7 @@ public class AppControllerAdvice extends ResponseEntityExceptionHandler {
     private static final String ENTITY_NOT_FOUND_BY_NAME = "Entity Not Found By Name";
     private static final String PAYMENT_VALIDATION_ERROR = "Payment Validation problems";
     private static final String WARRIOR_ALREADY_HAVE_EQUIPMENT = "Warrior Already Have that Equipment";
-    private static final String INACCESSIBLE_ACTIONS = "You are trying to access actions that you did not meet the required requirements";
+    private static final String INACCESSIBLE_ACTIONS = "You are trying to access actions that do not meet the required requirements";
     private static final String NON_UNIQUE_WARRIOR_NAME = "You are trying to create warrior with non unique name!";
 
     @ExceptionHandler(Exception.class)

@@ -57,7 +57,7 @@ public class MainGameService {
      * @param warriorName for get warrior if exist
      * @return warrior of throw EntityNotFoundByParameterException
      */
-    private Warrior getWarriorByName(String warriorName) {
+    public Warrior getWarriorByName(String warriorName) {
         Optional<Warrior> warriorOptional = warriorRepository.findByWarriorName(warriorName);
         if (warriorOptional.isPresent()) {
             return warriorOptional.get();
@@ -191,6 +191,7 @@ public class MainGameService {
                     .defence(warriorService.getDefaultDefence(warriorSpeciality))
                     .warriorSpeciality(warriorSpeciality)
                     .build();
+            log.debug("new warrior: " + warrior);
             List<Warrior> warriors = currentUser.getWarriors();
             warriors.add(warrior);
             User updatedUser = userRepository.save(currentUser.withWarriors(warriors));
